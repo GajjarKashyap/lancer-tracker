@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lancer — Coding Class Tracker</title>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;800&family=Poppins:wght@600;700&family=Raleway:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/theme/material-palenight.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/theme/eclipse.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/theme/tomorrow-night-eighties.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/hint/show-hint.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body data-theme="abyss">
+
+<!-- ══ PRELOADER — Code Terminal ══ -->
+<div id="preloader">
+    <div class="pre-terminal">
+        <div class="pre-terminal-bar">
+            <span class="pre-tb-dot" style="background:#e05c5c"></span>
+            <span class="pre-tb-dot" style="background:#e8a838"></span>
+            <span class="pre-tb-dot" style="background:#5cb85c"></span>
+            <span class="pre-tb-title">lancer_boot.py</span>
+        </div>
+        <div class="pre-terminal-body" id="pre-term-body"></div>
+        <div class="pre-terminal-footer">
+            <div class="pre-bar-wrap"><div id="pre-bar" class="pre-bar"></div></div>
+            <span id="pre-pct" class="pre-pct">0%</span>
+        </div>
+    </div>
+</div>
+
+<div class="app">
+
+    <!-- ══════════════ DASHBOARD ══════════════ -->
+    <div id="view-dash" class="view active">
+        <header class="dash-header">
+            <div class="dash-brand">
+                <span class="brand-name">Lancer</span>
+                <span class="brand-sub">Coding Class Tracker</span>
+            </div>
+            <div class="dash-right">
+                <div class="theme-picker" title="Change theme">
+                    <div class="theme-dot active" data-theme="abyss"  title="Abyss (Full Dark)"></div>
+                    <div class="theme-dot"         data-theme="dark"   title="Dark"></div>
+                    <div class="theme-dot"         data-theme="dim"    title="Dim (Eye Care)"></div>
+                    <div class="theme-dot"         data-theme="light"  title="Light"></div>
+                    <div class="theme-dot"         data-theme="white"  title="White"></div>
+                </div>
+                <button id="btn-new" class="btn-primary">+ New Session</button>
+            </div>
+        </header>
+
+        <!-- Stats -->
+        <div class="dash-stats">
+            <div class="stat-card">
+                <div class="stat-val" id="stat-hours">0h</div>
+                <div class="stat-lbl">Study Time</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-val" id="stat-sessions">0</div>
+                <div class="stat-lbl">Sessions</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-val" id="stat-snippets">0</div>
+                <div class="stat-lbl">Snippets Saved</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-val" id="stat-errors">0</div>
+                <div class="stat-lbl">Errors Logged</div>
+            </div>
+        </div>
+
+        <!-- Search & Filter Bar -->
+        <div class="filter-bar">
+            <div class="search-input-wrap">
+                <span class="search-icon">🔍</span>
+                <input type="text" id="search-input" placeholder="Search sessions by title or topic...">
+                <button id="btn-clear-search" class="btn-clear-search" title="Clear">×</button>
+            </div>
+            <select id="filter-topic" class="filter-select">
+                <option value="">All Topics</option>
+            </select>
+            <select id="filter-lang" class="filter-select">
+                <option value="">All Languages</option>
+            </select>
+            <select id="filter-date" class="filter-select">
+                <option value="">All Time</option>
+                <option value="7">Last 7 days</option>
+                <option value="30">Last 30 days</option>
+                <option value="90">Last 3 months</option>
+            </select>
+            <span id="filter-count" class="filter-count"></span>
+        </div>
+
+        <!-- Timeline -->
+        <div class="tl-section-hdr">Session Timeline</div>
+        <div id="timeline" class="timeline"></div>
+    </div>
+
+    <!-- ══════════════ WORKSPACE ══════════════ -->
+    <div id="view-work" class="view">
+        <div class="ws-topbar">
+            <button id="btn-back" class="btn-back">← Back</button>
+            <div class="ws-session-info">
+                <span id="ws-title" class="ws-title">Session</span>
+                <div class="ws-badges">
+                    <span id="ws-topic" class="badge badge-topic">Topic</span>
+                    <span id="ws-lang"  class="badge badge-lang">Python</span>
+                </div>
+            </div>
+            <div class="ws-right">
+                <div class="ws-timer-area">
+                    <span id="timer-val" class="timer-val">00:00</span>
+                    <div class="timer-btns" id="timer-btns">
+                        <button id="btn-pause"  class="btn-icon" title="Pause">⏸</button>
+                        <button id="btn-resume" class="btn-icon" title="Resume" style="display:none">▶</button>
+                        <button id="btn-finish" class="btn-danger-sm">✓ Finish</button>
+                    </div>
+                </div>
+                <button id="btn-export" class="btn-export" title="Export session as Markdown">⬇ Export .md</button>
+            </div>
+        </div>
+
+        <div class="tab-nav">
+            <button class="tab-btn active" data-tab="notes">📝 Notes</button>
+            <button class="tab-btn" data-tab="snippets">💻 Snippets <span class="tab-count" id="tc-snippets">0</span></button>
+            <button class="tab-btn" data-tab="errors">⚠️ Errors <span class="tab-count" id="tc-errors">0</span></button>
+            <button class="tab-btn" data-tab="tips">💡 Tips <span class="tab-count" id="tc-tips">0</span></button>
+            <button class="tab-btn" data-tab="learned">📌 Learned</button>
+            <button class="tab-btn" data-tab="next">🔜 Next Goals</button>
+            <button class="tab-btn" data-tab="todos">✅ To-Do <span class="tab-count" id="tc-todos">0</span></button>
+        </div>
+
+        <!-- Notes -->
+        <div id="tab-notes" class="tab-panel active">
+            <div class="panel-toolbar">
+                <span class="panel-label">Lecture notes — Ctrl+Space for autocomplete</span>
+                <button id="btn-copy-notes" class="btn-sm">📋 Copy All</button>
+            </div>
+            <div class="editor-shell"><textarea id="editor-main"></textarea></div>
+        </div>
+
+        <!-- Snippets -->
+        <div id="tab-snippets" class="tab-panel">
+            <div class="panel-toolbar">
+                <span class="panel-label">Code examples from the lecture</span>
+                <button id="btn-add-snippet" class="btn-sm btn-accent">+ Add Snippet</button>
+            </div>
+            <div id="snippet-form" class="add-form hidden">
+                <input type="text" id="snip-label" placeholder="Label (e.g. for loop syntax)">
+                <select id="snip-lang">
+                    <option value="python">Python</option><option value="javascript">JavaScript</option>
+                    <option value="text/x-java">Java</option><option value="text/x-csrc">C</option>
+                    <option value="text/x-c++src">C++</option><option value="xml">HTML</option><option value="css">CSS</option>
+                </select>
+                <textarea id="snip-code" placeholder="Paste your code..." rows="5" style="font-family:var(--f-mono)"></textarea>
+                <div class="form-actions">
+                    <button id="btn-save-snip" class="btn-primary btn-sm">Save Snippet</button>
+                    <button id="btn-cancel-snip" class="btn-ghost-sm">Cancel</button>
+                </div>
+            </div>
+            <div id="snippets-list" class="cards-list"></div>
+        </div>
+
+        <!-- Errors -->
+        <div id="tab-errors" class="tab-panel">
+            <div class="panel-toolbar">
+                <span class="panel-label">Bugs you hit + how you fixed them</span>
+                <button id="btn-add-error" class="btn-sm btn-danger-outline">+ Log Error</button>
+            </div>
+            <div id="error-form" class="add-form hidden">
+                <input type="text" id="err-problem" placeholder="What went wrong?">
+                <textarea id="err-solution" placeholder="How did you fix it?" rows="3"></textarea>
+                <div class="form-actions">
+                    <button id="btn-save-error" class="btn-primary btn-sm">Save</button>
+                    <button id="btn-cancel-error" class="btn-ghost-sm">Cancel</button>
+                </div>
+            </div>
+            <div id="errors-list" class="cards-list"></div>
+        </div>
+
+        <!-- Tips -->
+        <div id="tab-tips" class="tab-panel">
+            <div class="panel-toolbar">
+                <span class="panel-label">Important patterns, shortcuts, things not to forget</span>
+                <button id="btn-add-tip" class="btn-sm btn-accent">+ Add Tip</button>
+            </div>
+            <div id="tip-form" class="add-form hidden">
+                <textarea id="tip-text" placeholder="Write a tip or key pattern to remember..." rows="3"></textarea>
+                <div class="form-actions">
+                    <button id="btn-save-tip" class="btn-primary btn-sm">Save Tip</button>
+                    <button id="btn-cancel-tip" class="btn-ghost-sm">Cancel</button>
+                </div>
+            </div>
+            <div id="tips-list" class="cards-list"></div>
+        </div>
+
+        <!-- Learned -->
+        <div id="tab-learned" class="tab-panel">
+            <div class="panel-toolbar"><span class="panel-label">What did you actually understand in this session?</span></div>
+            <div class="text-area-panel">
+                <textarea id="learned-text" placeholder="Write a personal summary of what you learned..."></textarea>
+            </div>
+        </div>
+
+        <!-- Next Goals -->
+        <div id="tab-next" class="tab-panel">
+            <div class="panel-toolbar"><span class="panel-label">What to study or practice before your next session</span></div>
+            <div class="text-area-panel">
+                <textarea id="next-text" placeholder="Plan for next time..."></textarea>
+            </div>
+        </div>
+
+        <!-- Todos -->
+        <div id="tab-todos" class="tab-panel">
+            <div class="panel-toolbar"><span class="panel-label">Micro-goals for this study session</span></div>
+            <div class="todo-section">
+                <div class="todo-input-row">
+                    <input type="text" id="todo-input" placeholder="Add a goal...">
+                    <button id="btn-add-todo" class="btn-primary btn-sm">+ Add</button>
+                </div>
+                <ul id="todo-list" class="todo-list"></ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div id="modal" class="modal">
+    <div class="modal-box">
+        <div class="modal-head">
+            <h3>New Study Session</h3>
+            <button id="modal-close" class="btn-icon">×</button>
+        </div>
+        <div class="form-group">
+            <label>Session Title *</label>
+            <input type="text" id="f-title" placeholder="e.g. Python Functions & Loops">
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label>Topic / Subject</label>
+                <input type="text" id="f-topic" placeholder="e.g. Backend, Logic">
+            </div>
+            <div class="form-group">
+                <label>Language</label>
+                <input type="text" id="f-lang" placeholder="e.g. Python, JS, Java">
+            </div>
+        </div>
+        <div class="timer-choice">
+            <button id="choice-live" class="choice-btn active">
+                <span class="choice-icon">⏱</span><strong>Live Timer</strong><span>Count automatically</span>
+            </button>
+            <button id="choice-manual" class="choice-btn">
+                <span class="choice-icon">✏️</span><strong>Manual Entry</strong><span>Log past time</span>
+            </button>
+        </div>
+        <div id="manual-wrap" class="form-group" style="display:none; margin-top:14px;">
+            <label>Minutes Spent (no limit)</label>
+            <input type="number" id="f-mins" value="60" min="1">
+        </div>
+        <div class="modal-footer">
+            <button id="btn-cancel" class="btn-secondary">Cancel</button>
+            <button id="btn-start" class="btn-primary">Start Session →</button>
+        </div>
+    </div>
+</div>
+
+<div id="toasts" class="toast-wrap"></div>
+
+<!-- Scripts -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/python/python.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/javascript/javascript.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/clike/clike.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/xml/xml.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/css/css.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/hint/show-hint.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/hint/anyword-hint.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/hint/javascript-hint.min.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
