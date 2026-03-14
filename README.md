@@ -27,7 +27,7 @@ Ever sat through a brilliant coding lecture, only to forget that one crucial pie
 ## 🎨 Visual Sneak Peek
 **Small Demo:-**
 
-![Gif To show They Wrok](images/Untitled.gif)
+![Gif To show They Wrok](Images/Untitled.gif)
 `Newsession`→`Code`→`Snipt`→`Error`→`Tip`→`Learing`→`WhatNext?`→`ToDo`
 
 
